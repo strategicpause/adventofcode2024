@@ -16,11 +16,12 @@ func PartA(input string) int {
 	var leftList []int
 	var rightList []int
 
-	common.SplitLines(input, func(line string) {
+	for line := range common.SplitLines(input) {
 		vals := common.SplitAtoi(line, ' ')
 		leftList = append(leftList, vals[0])
 		rightList = append(rightList, vals[1])
-	})
+	}
+
 	sort.Ints(leftList)
 	sort.Ints(rightList)
 
@@ -33,11 +34,11 @@ func PartB(input string) int {
 	var leftList []int
 	rightMap := make(map[int]int)
 
-	common.SplitLines(input, func(line string) {
+	for line := range common.SplitLines(input) {
 		vals := common.SplitAtoi(line, ' ')
 		leftList = append(leftList, vals[0])
 		rightMap[vals[1]] += 1
-	})
+	}
 
 	return common.Sum(common.Map(leftList, func(leftVal int) int {
 		return leftVal * rightMap[leftVal]

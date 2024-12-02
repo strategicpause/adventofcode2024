@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"iter"
 	"os"
 	"strings"
 	"time"
@@ -54,26 +55,27 @@ func CharAtoi(c byte) int {
 // Each of the resulting elements will then be converted to an integer.
 func SplitAtoi(str string, splitChar byte) []int {
 	var nums []int
-	SplitItr(str, splitChar, func(s string) {
+	for s := range SplitItr(str, splitChar) {
 		if s != "" {
 			nums = append(nums, Atoi(strings.TrimSpace(s)))
 		}
-	})
+	}
 	return nums
 }
 
-func SplitLines(str string, f func(string)) {
-	SplitItr(str, '\n', f)
+func SplitLines(str string) iter.Seq[string] {
+	return SplitItr(str, '\n')
 }
 
-// SplitItr will split the given string by the given split character.
-// The resulting elements will passed as a parameter to the given
-// function.
-func SplitItr(str string, splitChar byte, f func(string)) {
-	strs := strings.Split(str, string(splitChar))
-	for _, str := range strs {
-		if str != "" {
-			f(strings.TrimSpace(str))
+func SplitItr(str string, splitChar byte) iter.Seq[string] {
+	return func(yield func(string) bool) {
+		splitStrs := strings.Split(str, string(splitChar))
+		for _, s := range splitStrs {
+			if s != "" {
+				if !yield(strings.TrimSpace(s)) {
+					return
+				}
+			}
 		}
 	}
 }
@@ -116,4 +118,58 @@ func Max[T int](n, m T) T {
 		return n
 	}
 	return m
+}
+
+func All[T any](s iter.Seq[T], f func(T) bool) bool {
+	for v := range s {
+		if !f(v) {
+			return false
+		}
+	}
+	return true
+}
+
+func Any[T any](s iter.Seq[T], f func(T) bool) bool {
+	for v := range s {
+		if f(v) {
+			return true
+		}
+	}
+	return false
+}
+
+func Range(start, end int) iter.Seq[int] {
+	return func(yield func(int) bool) {
+		for i := start; i < end; i++ {
+			if !yield(i) {
+				return
+			}
+		}
+	}
+}
+
+func Remove[T any](vals []T, i int) []T {
+	s := make([]T, len(vals))
+	copy(s, vals)
+	return append(s[:i], s[i+1:]...)
+}
+
+func Window[T any](s []T, size int) iter.Seq[[]T] {
+	return func(yield func([]T) bool) {
+		l := len(s)
+		if size > l {
+			yield(s)
+			return
+		}
+		for i := 0; i <= l-size; i++ {
+			windowStart := i
+			windowEnd := i + size
+			if windowEnd > l {
+				windowEnd = l
+			}
+			if !yield(s[windowStart:windowEnd]) {
+				return
+			}
+		}
+	}
 }
