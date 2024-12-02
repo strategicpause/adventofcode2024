@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func RunAndMeasure(part string, f func(string) int, fileName string) int {
+func RunAndMeasure[T int](part string, f func(string) T, fileName string) T {
 	var input, err = ReadInput(fileName)
 	if err != nil {
 		panic(err)
@@ -20,7 +20,7 @@ func RunAndMeasure(part string, f func(string) int, fileName string) int {
 	return answer
 }
 
-func RunAndAssert(expected int, f func(string) int, fileName string) {
+func RunAndAssert[T int](expected T, f func(string) T, fileName string) {
 	var input, err = ReadInput(fileName)
 	if err != nil {
 		panic(err)
@@ -78,9 +78,9 @@ func SplitItr(str string, splitChar byte, f func(string)) {
 	}
 }
 
-func Zip(first []int, second []int, f func(int, int) int) []int {
+func Zip[T, U, V any](first []T, second []U, f func(T, U) V) []V {
 	length := Max(len(first), len(second))
-	var zipped []int
+	var zipped []V
 	for i := 0; i < length; i++ {
 		result := f(first[i], second[i])
 		zipped = append(zipped, result)
@@ -104,14 +104,14 @@ func Map[T, U any](s []T, f func(T) U) []U {
 	return result
 }
 
-func Abs(n int) int {
+func Abs[T int](n T) T {
 	if n < 0 {
 		return -1 * n
 	}
 	return n
 }
 
-func Max(n, m int) int {
+func Max[T int](n, m T) T {
 	if n > m {
 		return n
 	}
